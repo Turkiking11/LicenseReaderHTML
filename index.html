@@ -2,237 +2,187 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Plate Reader</title>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Saudi Plate Reader</title>
 <style>
 * {
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
 }
 body {
     margin: 0;
     background: #080808;
-    color: white;
+    color: #fff;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Arial, sans-serif;
-    min-height: 100vh;
-}
-.app {
-    max-width: 600px;
-    margin: auto;
-    min-height: 100vh;
-    padding: 18px;
-}
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px;
-}
-.title {
-    font-size: 25px;
-    font-weight: 800;
-}
-.status {
-    font-size: 12px;
-    color: #888;
-}
-.camera {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 3 / 4;
-    background: #111;
-    border-radius: 24px;
     overflow: hidden;
-    border: 1px solid #292929;
 }
-video {
+#camera {
+    position: fixed;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    background: #000;
+}
+.overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
 }
 .scan-box {
     position: absolute;
-    width: 75%;
-    height: 22%;
-    left: 12.5%;
-    top: 39%;
-    border: 2px solid white;
-    border-radius: 12px;
-    box-shadow: 0 0 0 9999px rgba(0,0,0,.35);
-}
-.scan-label {
-    position: absolute;
-    top: calc(39% - 30px);
-    width: 100%;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-.controls {
-    display: flex;
-    gap: 10px;
-    margin-top: 14px;
-}
-button {
-    flex: 1;
-    border: 0;
+    width: 82%;
+    max-width: 500px;
+    aspect-ratio: 2.7 / 1;
+    left: 50%;
+    top: 43%;
+    transform: translate(-50%, -50%);
+    border: 3px solid rgba(255,255,255,.9);
     border-radius: 14px;
-    padding: 15px;
-    font-size: 15px;
-    font-weight: 700;
+    box-shadow:
+        0 0 0 9999px rgba(0,0,0,.38),
+        0 0 25px rgba(255,255,255,.25);
+}
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
     background: #fff;
-    color: #000;
+    box-shadow: 0 0 12px #fff;
+    animation: scan 2.2s linear infinite;
 }
-button.secondary {
-    background: #1b1b1b;
-    color: white;
-    border: 1px solid #303030;
+@keyframes scan {
+    0% { top: 0; }
+    100% { top: 100%; }
 }
-button:active {
-    transform: scale(.97);
+.top {
+    position: fixed;
+    top: env(safe-area-inset-top, 20px);
+    left: 0;
+    width: 100%;
+    padding: 18px;
+    z-index: 5;
+}
+.title {
+    font-size: 23px;
+    font-weight: 700;
+}
+.subtitle {
+    margin-top: 4px;
+    opacity: .65;
+    font-size: 13px;
+}
+.bottom {
+    position: fixed;
+    bottom: env(safe-area-inset-bottom, 20px);
+    left: 0;
+    width: 100%;
+    padding: 18px;
+    z-index: 5;
 }
 .result {
-    margin-top: 18px;
-    background: #111;
-    border: 1px solid #292929;
-    border-radius: 20px;
-    padding: 18px;
+    background: rgba(15,15,15,.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 18px;
+    padding: 16px;
 }
-.result-title {
-    color: #777;
-    font-size: 12px;
+.label {
+    font-size: 11px;
+    opacity: .55;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 .plate {
-    margin-top: 7px;
-    font-size: 34px;
-    font-weight: 900;
-    letter-spacing: 5px;
-    word-break: break-all;
-}
-.confidence {
-    margin-top: 7px;
-    color: #777;
-    font-size: 13px;
-}
-.history {
-    margin-top: 18px;
-}
-.history-title {
-    font-size: 16px;
+    font-size: 30px;
     font-weight: 800;
-    margin-bottom: 10px;
+    letter-spacing: 3px;
+    margin-top: 4px;
 }
-.history-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #111;
-    border: 1px solid #222;
-    padding: 14px;
+.status {
+    margin-top: 8px;
+    font-size: 13px;
+    opacity: .7;
+}
+button {
+    width: 100%;
+    margin-top: 12px;
+    height: 48px;
+    border: 0;
     border-radius: 14px;
-    margin-bottom: 8px;
+    background: #fff;
+    color: #000;
+    font-size: 16px;
+    font-weight: 700;
 }
-.history-plate {
-    font-weight: 800;
-    letter-spacing: 2px;
-}
-.history-time {
-    color: #666;
-    font-size: 12px;
-}
-#canvas {
-    display: none;
-}
-.loading {
-    display: none;
-    margin-top: 10px;
-    color: #aaa;
+#start {
+    position: fixed;
+    z-index: 20;
+    inset: 0;
+    background: #080808;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
     text-align: center;
-    font-size: 13px;
+}
+#start h1 {
+    font-size: 32px;
+    margin: 0 0 10px;
+}
+#start p {
+    opacity: .6;
+    line-height: 1.5;
+    max-width: 350px;
+}
+canvas {
+    display: none;
 }
 </style>
 </head>
 <body>
-<div class="app">
-    <div class="header">
-        <div class="title">Plate Reader</div>
-        <div class="status" id="status">Camera offline</div>
+<div id="start">
+    <h1>🇸🇦 Saudi Plate Reader</h1>
+    <p>
+        Point your rear camera at a Saudi license plate.
+        The reader will continuously scan the camera feed.
+    </p>
+    <button onclick="startCamera()">Start Camera</button>
+</div>
+<video id="camera" autoplay playsinline muted></video>
+<div class="overlay">
+    <div class="scan-box">
+        <div class="scan-line"></div>
     </div>
-    <div class="camera">
-        <video id="video" autoplay playsinline muted></video>
-        <div class="scan-label">
-            POSITION PLATE INSIDE BOX
-        </div>
-        <div class="scan-box"></div>
-    </div>
-    <div class="controls">
-        <button id="start">Start Camera</button>
-        <button id="scan" class="secondary">Scan Plate</button>
-    </div>
-    <div class="controls">
-        <button id="torch" class="secondary">Flashlight</button>
-        <button id="clear" class="secondary">Clear History</button>
-    </div>
-    <div class="loading" id="loading">
-        Reading plate...
-    </div>
+</div>
+<div class="top">
+    <div class="title">Saudi Plate Reader</div>
+    <div class="subtitle">LIVE CAMERA • OCR</div>
+</div>
+<div class="bottom">
     <div class="result">
-        <div class="result-title">Detected Plate</div>
+        <div class="label">Detected Plate</div>
         <div class="plate" id="plate">---</div>
-        <div class="confidence" id="confidence">
-            Waiting for scan
-        </div>
-    </div>
-    <div class="history">
-        <div class="history-title">Scan History</div>
-        <div id="history"></div>
+        <div class="status" id="status">Waiting for camera...</div>
+        <button onclick="scanNow()">Scan Now</button>
     </div>
 </div>
 <canvas id="canvas"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
-const video = document.getElementById("video");
+const video = document.getElementById("camera");
 const canvas = document.getElementById("canvas");
-const startButton = document.getElementById("start");
-const scanButton = document.getElementById("scan");
-const torchButton = document.getElementById("torch");
-const clearButton = document.getElementById("clear");
-const statusText = document.getElementById("status");
-const plateText = document.getElementById("plate");
-const confidenceText = document.getElementById("confidence");
-const loading = document.getElementById("loading");
-const historyContainer = document.getElementById("history");
+const ctx = canvas.getContext("2d");
+const plateOutput = document.getElementById("plate");
+const statusOutput = document.getElementById("status");
+const startScreen = document.getElementById("start");
 let stream = null;
-let track = null;
-let torchEnabled = false;
-let history = JSON.parse(
-    localStorage.getItem("plateHistory") || "[]"
-);
-function updateHistory() {
-    historyContainer.innerHTML = "";
-    if (history.length === 0) {
-        historyContainer.innerHTML =
-            '<div style="color:#666;font-size:13px;">No scans yet</div>';
-        return;
-    }
-    history.slice().reverse().forEach(item => {
-        const element = document.createElement("div");
-        element.className = "history-item";
-        element.innerHTML = `
-            <div class="history-plate">${item.plate}</div>
-            <div class="history-time">${item.time}</div>
-        `;
-        historyContainer.appendChild(element);
-    });
-}
+let worker = null;
+let scanning = false;
 async function startCamera() {
     try {
-        if (stream) {
-            stream.getTracks().forEach(t => t.stop());
-        }
+        statusOutput.textContent = "Requesting camera...";
         stream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: {
@@ -248,142 +198,97 @@ async function startCamera() {
             audio: false
         });
         video.srcObject = stream;
-        track = stream.getVideoTracks()[0];
-        statusText.textContent = "Camera active";
-        startButton.textContent = "Restart Camera";
+        startScreen.style.display = "none";
+        statusOutput.textContent = "Camera active — point at a plate";
+        await video.play();
+        worker = await Tesseract.createWorker("eng");
+        setTimeout(scanNow, 1200);
     } catch (error) {
         console.error(error);
-        statusText.textContent = "Camera permission denied";
+        statusOutput.textContent =
+            "Camera failed. Make sure you allowed camera access and are using HTTPS.";
         alert(
-            "Camera access failed. Make sure you opened this page using HTTPS and allowed camera access."
+            "Camera access failed.\n\n" +
+            "Make sure this page is opened using HTTPS and camera access is allowed."
         );
     }
 }
-async function scanPlate() {
-    if (!stream) {
-        alert("Start the camera first.");
-        return;
-    }
-    if (video.videoWidth === 0) {
-        alert("Camera is still loading.");
-        return;
-    }
-    loading.style.display = "block";
-    scanButton.disabled = true;
-    const width = video.videoWidth;
-    const height = video.videoHeight;
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(
-        video,
-        0,
-        0,
-        width,
-        height
-    );
+async function scanNow() {
+    if (scanning || !worker || video.readyState < 2) return;
+    scanning = true;
+    statusOutput.textContent = "Scanning...";
     try {
-        const result = await Tesseract.recognize(
-            canvas,
-            "eng",
-            {
-                logger: message => {
-                    if (message.status === "recognizing text") {
-                        const percent =
-                            Math.round((message.progress || 0) * 100);
-                        confidenceText.textContent =
-                            `OCR ${percent}%`;
-                    }
-                }
-            }
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
+        if (!vw || !vh) {
+            scanning = false;
+            return;
+        }
+        /*
+            Crop the center area where the scan box appears.
+        */
+        const cropWidth = Math.floor(vw * 0.82);
+        const cropHeight = Math.floor(cropWidth / 2.7);
+        const x = Math.floor((vw - cropWidth) / 2);
+        const y = Math.floor(vh * 0.43 - cropHeight / 2);
+        canvas.width = cropWidth;
+        canvas.height = cropHeight;
+        ctx.drawImage(
+            video,
+            x,
+            y,
+            cropWidth,
+            cropHeight,
+            0,
+            0,
+            cropWidth,
+            cropHeight
         );
-        let text = result.data.text
+        const result = await worker.recognize(canvas);
+        const text = result.data.text
             .toUpperCase()
-            .replace(/[^A-Z0-9]/g, "");
-        if (!text) {
-            plateText.textContent = "---";
-            confidenceText.textContent =
-                "No plate detected";
+            .replace(/[^A-Z0-9\u0660-\u0669\u06F0-\u06F9\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+        if (text.length >= 2) {
+            const formatted = formatSaudiPlate(text);
+            plateOutput.textContent = formatted;
+            statusOutput.textContent = "Plate detected";
         } else {
-            /*
-             * OCR is not a dedicated license-plate detector,
-             * so this cleans the result into a plate-like value.
-             */
-            text = text.substring(0, 10);
-            plateText.textContent = text;
-            confidenceText.textContent =
-                `OCR confidence: ${Math.round(result.data.confidence)}%`;
-            const now = new Date();
-            const time = now.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit"
-            });
-            history.push({
-                plate: text,
-                time: time
-            });
-            history = history.slice(-20);
-            localStorage.setItem(
-                "plateHistory",
-                JSON.stringify(history)
-            );
-            updateHistory();
+            statusOutput.textContent = "No plate detected";
         }
     } catch (error) {
         console.error(error);
-        plateText.textContent = "---";
-        confidenceText.textContent =
-            "OCR failed";
+        statusOutput.textContent = "Scan error";
     }
-    loading.style.display = "none";
-    scanButton.disabled = false;
+    scanning = false;
+    setTimeout(scanNow, 1800);
 }
-async function toggleTorch() {
-    if (!track) {
-        alert("Start the camera first.");
-        return;
+function formatSaudiPlate(text) {
+    /*
+        Saudi plates commonly contain Arabic letters,
+        Latin equivalents and numbers.
+        This doesn't contact any government database.
+        It only reads visible characters from the camera.
+    */
+    const cleaned = text
+        .replace(/\s+/g, " ")
+        .trim();
+    const numbers = cleaned.match(/[0-9\u0660-\u0669\u06F0-\u06F9]+/g);
+    const letters = cleaned.match(/[A-Z]+/g);
+    if (numbers && letters) {
+        return letters.join("") + " " + numbers.join("");
     }
-    const capabilities = track.getCapabilities();
-    if (!capabilities.torch) {
-        alert(
-            "Your browser/device does not expose flashlight control."
-        );
-        return;
-    }
-    torchEnabled = !torchEnabled;
-    await track.applyConstraints({
-        advanced: [
-            {
-                torch: torchEnabled
-            }
-        ]
-    });
-    torchButton.textContent =
-        torchEnabled ? "Flashlight On" : "Flashlight";
+    return cleaned || "---";
 }
-startButton.addEventListener(
-    "click",
-    startCamera
-);
-scanButton.addEventListener(
-    "click",
-    scanPlate
-);
-torchButton.addEventListener(
-    "click",
-    toggleTorch
-);
-clearButton.addEventListener(
-    "click",
-    () => {
-        history = [];
-        localStorage.removeItem(
-            "plateHistory"
-        );
-        updateHistory();
+window.addEventListener("beforeunload", () => {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
     }
-);
-updateHistory();
+    if (worker) {
+        worker.terminate();
+    }
+});
 </script>
 </body>
 </html>
